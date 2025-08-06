@@ -16,10 +16,18 @@ jobs:
           N8N_API_KEY: ${{ secrets.N8N_API_KEY }}
         run: |
           for file in workflows/*.json; do
-            WORKFLOW_ID=$(jq -r '.id' "$file") # Extract ID from JSON
-            echo "Updating workflow $WORKFLOW_ID from $file"
-            curl -X PUT $N8N_API_URL/workflows/$WORKFLOW_ID \
-              -H "Authorization: Bearer $N8N_API_KEY" \
-              -H "Content-Type: application/json" \
-              -d @"$file"
+            WORKFLOW_ID=$(jq -r '.id' "$file") || WORKFLOW_ID="" # Extract ID from JSON or set empty if not found
+            if [ -z "$WORKFLOW_ID" ]; then
+              echo "Creating new workflow from $file"
+              curl -X POST $N8N_API_URL/workflows \
+                -H "X-N8N-API-KEY: $N8N_API_KEY" \
+                -H "Content-Type: application/json" \
+                -d @"$file"
+            else
+              echo "Updating workflow $WORKFLOW_ID from $file"
+              curl -X PUT $N8N_API_URL/workflows/$WORKFLOW_ID \
+                -H "X-N8N-API-KEY: $N8N_API_KEY" \
+                -H "Content-Type: application/json" \
+                -d @"$file"
+            fi
           done
