@@ -19,15 +19,17 @@ jobs:
             WORKFLOW_ID=$(jq -r '.id' "$file") || WORKFLOW_ID="" # Extract ID from JSON or set empty if not found
             if [ -z "$WORKFLOW_ID" ]; then
               echo "Creating new workflow from $file"
-              curl -X POST $N8N_API_URL/workflows \
+              RESPONSE=$(curl -s -X POST $N8N_API_URL/workflows \
                 -H "X-N8N-API-KEY: $N8N_API_KEY" \
                 -H "Content-Type: application/json" \
-                -d @"$file"
+                -d @"$file")
+              echo "Response: $RESPONSE"
             else
               echo "Updating workflow $WORKFLOW_ID from $file"
-              curl -X PUT $N8N_API_URL/workflows/$WORKFLOW_ID \
+              RESPONSE=$(curl -s -X PUT $N8N_API_URL/workflows/$WORKFLOW_ID \
                 -H "X-N8N-API-KEY: $N8N_API_KEY" \
                 -H "Content-Type: application/json" \
-                -d @"$file"
+                -d @"$file")
+              echo "Response: $RESPONSE"
             fi
           done
