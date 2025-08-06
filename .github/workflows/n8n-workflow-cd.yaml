@@ -17,7 +17,7 @@ jobs:
         run: |
           for file in workflows/*.json; do
             echo "Deploying $file"
-            curl -X POST $N8N_API_URL/rest/workflows \
+            curl -X POST $N8N_API_URL/workflows \
               -H "Authorization: Bearer $N8N_API_KEY" \
               -H "Content-Type: application/json" \
               -d @"$file"
