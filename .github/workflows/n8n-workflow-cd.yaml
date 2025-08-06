@@ -12,12 +12,13 @@ jobs:
       - uses: actions/checkout@v2
       - name: Deploy workflows to n8n
         env:
-          N8N_API_URL: https://n8n-test.n8n.cactus.eks.aws.theiconic.com.au
+          N8N_API_URL: https://n8n-test.n8n.cactus.eks.aws.theiconic.com.au/api/v1
           N8N_API_KEY: ${{ secrets.N8N_API_KEY }}
         run: |
           for file in workflows/*.json; do
-            echo "Deploying $file"
-            curl -X POST $N8N_API_URL/workflows \
+            WORKFLOW_ID=$(jq -r '.id' "$file") # Extract ID from JSON
+            echo "Updating workflow $WORKFLOW_ID from $file"
+            curl -X PUT $N8N_API_URL/workflows/$WORKFLOW_ID \
               -H "Authorization: Bearer $N8N_API_KEY" \
               -H "Content-Type: application/json" \
               -d @"$file"
